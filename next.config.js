@@ -2,14 +2,18 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
     ],
   },
-  experimental: {
-    ppr: 'incremental',
-    reactCompiler: true,
-  },
+  // NO experimental.ppr – נמנע משגיאות build ב-Netlify
+  // נוסיף חזרה כשNetlify יתמוך במלואה בסטביל
 };
 
 module.exports = nextConfig;
