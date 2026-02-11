@@ -19,7 +19,7 @@ export default function ParticlesBackground() {
         particles: {
           number: {
             value: 40,
-            density: { enable: true, area: 800 },   // ← התיקון כאן – value_area → area
+            density: { enable: true, value_area: 800 },   // ← התיקון כאן – area → value_area
           },
           color: { value: ["#00d4ff", "#7c3aed", "#ec4899", "#ffffff"] },
           shape: { type: "circle" },
