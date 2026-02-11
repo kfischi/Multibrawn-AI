@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.14",
     "@tsparticles/react": "^3.0.0",
