@@ -1,0 +1,9 @@
+# Next.js generated files
+next-env.d.ts
+.next/
+out/
+node_modules/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
