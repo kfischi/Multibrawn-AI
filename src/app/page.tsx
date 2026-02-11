@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
-import ParticlesBackground from "@/components/ParticlesBackground";
 import ChatBot from "@/components/ChatBot/ChatBot";
 
 export default function Home() {
@@ -31,7 +30,6 @@ export default function Home() {
 
   return (
     <>
-      <ParticlesBackground />
 
       <main ref={containerRef} className="relative min-h-screen overflow-hidden bg-black text-white">
         {/* Mouse glow follower */}
