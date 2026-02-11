@@ -1,56 +1,109 @@
-"use client"
+// src/components/ParticlesBackground.tsx
+'use client';
 
-import { useCallback } from "react"
-import Particles from "@tsparticles/react"
-import { loadSlim } from "@tsparticles/slim"
-import type { Engine } from "@tsparticles/engine"
+import { useCallback } from 'react';
+import Particles from 'react-tsparticles';
+import { loadSlim } from 'tsparticles-slim';
+import type { Engine } from 'tsparticles-engine';
 
 export default function ParticlesBackground() {
   const particlesInit = useCallback(async (engine: Engine) => {
-    await loadSlim(engine)
-  }, [])
+    await loadSlim(engine);
+  }, []);
 
   return (
     <Particles
       id="tsparticles"
       init={particlesInit}
       options={{
-        fullScreen: { enable: true, zIndex: -1 },
+        fullScreen: {
+          enable: true,
+          zIndex: -1,
+        },
         particles: {
           number: {
             value: 40,
-            density: { enable: true, area: 800 },   // ← התיקון כאן – value_area → area
+            density: {
+              enable: true,
+              value_area: 800, // ✅ FIXED: Changed from "area" to "value_area"
+            },
           },
-          color: { value: ["#00d4ff", "#7c3aed", "#ec4899", "#ffffff"] },
-          shape: { type: "circle" },
-          opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1 } },
-          size: { value: 2.5, random: true, anim: { enable: true, speed: 2, size_min: 0.3 } },
+          color: {
+            value: ["#00d4ff", "#7c3aed", "#ff4b8c"],
+          },
+          shape: {
+            type: "circle",
+          },
+          opacity: {
+            value: 0.5,
+            random: true,
+            animation: {
+              enable: true,
+              speed: 1,
+              minimumValue: 0.1,
+              sync: false,
+            },
+          },
+          size: {
+            value: { min: 1, max: 5 },
+            random: true,
+            animation: {
+              enable: true,
+              speed: 2,
+              minimumValue: 0.1,
+              sync: false,
+            },
+          },
+          links: {
+            enable: true,
+            distance: 150,
+            color: "#00d4ff",
+            opacity: 0.2,
+            width: 1,
+          },
           move: {
             enable: true,
-            speed: 0.4,
+            speed: 1,
             direction: "none",
-            random: true,
+            random: false,
             straight: false,
-            out_mode: "out",
-            attract: { enable: false },
+            outModes: {
+              default: "bounce",
+            },
+            attract: {
+              enable: false,
+              rotateX: 600,
+              rotateY: 1200,
+            },
           },
         },
         interactivity: {
-          detect_on: "canvas",
+          detectsOn: "canvas",
           events: {
-            onhover: { enable: true, mode: "grab" },
-            onclick: { enable: true, mode: "push" },
+            onHover: {
+              enable: true,
+              mode: "grab",
+            },
+            onClick: {
+              enable: true,
+              mode: "push",
+            },
             resize: true,
           },
           modes: {
-            grab: { distance: 180, line_linked: { opacity: 0.35 } },
-            push: { particles_nb: 4 },
+            grab: {
+              distance: 140,
+              links: {
+                opacity: 0.5,
+              },
+            },
+            push: {
+              quantity: 4,
+            },
           },
         },
-        retina_detect: true,
-        background: { color: "transparent" },
+        detectRetina: true,
       }}
-      className="fixed inset-0 pointer-events-none z-[-1]"
     />
-  )
+  );
 }
