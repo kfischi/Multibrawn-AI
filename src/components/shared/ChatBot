@@ -1,0 +1,176 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Send, Loader2, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+  isLoading?: boolean;
+};
+
+export default function ChatBot() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // גלילה אוטומטית לתחתית
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    // הוספת הודעת "כותב..." זמנית
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "", isLoading: true },
+    ]);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            ...messages,
+            userMessage,
+            { role: "assistant", content: "" },
+          ],
+        }),
+      });
+
+      if (!res.ok) throw new Error("שגיאת שרת");
+
+      const data = await res.json();
+      const assistantMessage: Message = { role: "assistant", content: data.response };
+
+      // עדכון ההודעה האחרונה
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        assistantMessage,
+      ]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { role: "assistant", content: "מצטערת, קרתה תקלה... נסי שוב?" },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <div className="fixed bottom-24 right-6 z-50 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 flex items-center gap-3">
+        <Avatar className="h-10 w-10 border-2 border-white">
+          <AvatarFallback className="bg-white text-cyan-600 font-bold">ע</AvatarFallback>
+        </Avatar>
+        <div>
+          <h3 className="font-semibold">ערדית – העוזרת שלך</h3>
+          <p className="text-xs opacity-90">מחפשת לך את החופשה המושלמת</p>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <ScrollArea className="flex-1 p-4 space-y-4">
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+            <MessageCircle className="h-12 w-12 mb-4 opacity-40" />
+            <p className="text-lg font-medium">שלום! איך אני יכולה לעזור לך למצוא חופשה?</p>
+            <p className="text-sm mt-2">למשל: "צימר רומנטי בצפון עם בריכה מחוממת"</p>
+          </div>
+        )}
+
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={cn(
+              "flex gap-3 max-w-[85%]",
+              msg.role === "user" ? "ml-auto justify-end" : "mr-auto"
+            )}
+          >
+            {msg.role === "assistant" && (
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarFallback className="bg-cyan-100 text-cyan-700">ע</AvatarFallback>
+              </Avatar>
+            )}
+
+            <div
+              className={cn(
+                "rounded-2xl px-4 py-3 text-sm",
+                msg.role === "user"
+                  ? "bg-cyan-500 text-white rounded-tr-none"
+                  : "bg-gray-100 rounded-tl-none"
+              )}
+            >
+              {msg.isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>כותבת...</span>
+                </div>
+              ) : (
+                msg.content
+              )}
+            </div>
+
+            {msg.role === "user" && (
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarFallback className="bg-gray-200">את/ה</AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
+      </ScrollArea>
+
+      {/* Input */}
+      <div className="border-t p-4 bg-white">
+        <div className="flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="כתבי כאן מה את/ה מחפש/ת..."
+            disabled={isLoading}
+            className="flex-1"
+          />
+          <Button
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            size="icon"
+            className="h-10 w-10 rounded-full"
+          >
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Send className="h-5 w-5" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
